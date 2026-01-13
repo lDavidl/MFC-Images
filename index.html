@@ -3,157 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <title>Dragon Emperor Images</title>
+
+<!-- FAVICON -->
+<link rel="icon" type="image/png" href="/favicon.png">
+
 <style>
-  body { font-family: sans-serif; background: #242424; padding: 20px; margin: 0; }
-  h1 { text-align: center; margin-bottom: 40px; }
+/* ===== BASE ===== */
+body {
+  font-family: sans-serif;
+  background: #d0d0d0;
+  padding: 20px;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
 
-  /* Gallery grid */
-  .gallery { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-    gap: 20px; 
-    justify-items: center;
-  }
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  .item { text-align: center; cursor: pointer; transition: transform 0.2s; }
-  .item:hover { transform: scale(1.05); }
+/* ===== CONTROLS ===== */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 
-  img { 
-    width: 100%; 
-    height: auto; 
-    max-width: 200px; 
-    border: 1px solid #000; 
-    border-radius: 6px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+button, input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  font-size: 0.9em;
+}
 
-  .filename { 
-    font-size: 0.9em; 
-    color: #d8d8d8; 
-    word-break: break-word; 
-    margin-top: 6px; 
-    cursor: pointer; 
-  }
-  .filename:hover { text-decoration: underline; }
+/* ===== GALLERY ===== */
+.gallery {
+  background: #bfbfbf;
+  padding: 20px;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
 
-  /* Modal styles */
-  .modal { 
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    padding-top: 60px; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.8); 
-  }
-  .modal-content { 
-    margin: auto; 
-    display: block; 
-    max-width: 90vw; 
-    max-height: 80vh; 
-    width: auto; 
-    height: auto; 
-    object-fit: contain; /* preserves aspect ratio */
-  }
-  .modal-caption { 
-    margin: auto; 
-    display: block; 
-    width: 80%; 
-    text-align: center; 
-    color: #fff; 
-    font-size: 1em; 
-    padding: 10px 0; 
-  }
-  .close { 
-    position: absolute; 
-    top: 20px; 
-    right: 35px; 
-    color: #fff; 
-    font-size: 40px; 
-    font-weight: bold; 
-    cursor: pointer; 
-  }
+.item {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
 
-  @media (max-width: 400px) { img { max-width: 140px; } }
+.item:hover { transform: scale(1.05); }
+
+img {
+  width: 100%;
+  height: auto;
+  max-width: 200px;
+  border-radius: 6px;
+  border: 1px solid #888;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.filename {
+  font-size: 0.85em;
+  margin-top: 6px;
+  cursor: pointer;
+  word-break: break-word;
+}
+
+.filename:hover { text-decoration: underline; }
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+}
+
+.modal-content {
+  margin: auto;
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* ===== DARK MODE ===== */
+body.dark {
+  background: #121212;
+  color: #eee;
+}
+
+body.dark .gallery { background: #1e1e1e; }
+body.dark img { border-color: #333; }
+body.dark .filename { color: #ddd; }
+body.dark button, body.dark input {
+  background: #222;
+  color: #eee;
+  border-color: #444;
+}
 </style>
 </head>
-<body>
-<h1>...</h1>
 
-<!-- Gallery container -->
+<body>
+
+<h1>Image Gallery</h1>
+
+<div class="controls">
+  <button data-folder="">All</button>
+  <button data-folder="gifs">GIFs</button>
+  <button data-folder="images">Images</button>
+  <input type="text" id="search" placeholder="Search…">
+  <button id="toggle">Dark mode</button>
+</div>
+
 <div id="gallery" class="gallery"></div>
 
-<!-- Modal -->
+<!-- MODAL -->
 <div id="modal" class="modal">
   <span class="close">&times;</span>
-  <img class="modal-content" id="modal-img">
-  <div class="modal-caption" id="modal-caption"></div>
+  <img id="modal-img" class="modal-content">
 </div>
 
 <script>
+/* ===== CONFIG ===== */
 const owner = "lDavidl";
 const repo = "MFC-Images";
-const folder = ""; // root folder
-const baseURL = "https://img.dragonemperor.xyz/"; // full URL base for copying
+const baseURL = "https://img.dragonemperor.xyz/";
+const perPage = 30;
 
+/* ===== STATE ===== */
+let allFiles = [];
+let filtered = [];
+let page = 0;
+
+/* ===== ELEMENTS ===== */
 const gallery = document.getElementById("gallery");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modal-img");
-const modalCaption = document.getElementById("modal-caption");
-const closeBtn = document.getElementsByClassName("close")[0];
+const search = document.getElementById("search");
+const toggle = document.getElementById("toggle");
 
-fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
-  .then(res => res.json())
-  .then(files => {
-    // Separate GIFs and other images
-    const gifs = files.filter(f => f.name.match(/\.gif$/i)).sort((a,b) => a.name.localeCompare(b.name));
-    const others = files.filter(f => f.name.match(/\.(jpg|jpeg|png|webp)$/i)).sort((a,b) => a.name.localeCompare(b.name));
+/* ===== DARK MODE ===== */
+if (localStorage.getItem("dark") === "1") {
+  document.body.classList.add("dark");
+  toggle.textContent = "Light mode";
+}
 
-    [...gifs, ...others].forEach(file => {
-      const div = document.createElement("div");
-      div.className = "item";
+toggle.onclick = () => {
+  document.body.classList.toggle("dark");
+  const on = document.body.classList.contains("dark");
+  toggle.textContent = on ? "Light mode" : "Dark mode";
+  localStorage.setItem("dark", on ? "1" : "0");
+};
 
-      const img = document.createElement("img");
-      img.src = file.download_url;
-      img.alt = file.name;
-
-      const caption = document.createElement("div");
-      caption.className = "filename";
-      caption.textContent = file.name;
-      caption.title = "Click to copy full URL";
-
-      // Click filename to copy full URL
-      caption.onclick = (e) => {
-        e.stopPropagation(); // don't trigger modal
-        const fullURL = `${baseURL}${file.name}`;
-        navigator.clipboard.writeText(fullURL)
-          .then(() => {
-            caption.textContent = "Copied!";
-            setTimeout(() => { caption.textContent = file.name; }, 1000);
-          })
-          .catch(err => console.error("Failed to copy URL:", err));
-      };
-
-      div.appendChild(img);
-      div.appendChild(caption);
-      gallery.appendChild(div);
-
-      // Click image/item to open modal
-      div.onclick = (e) => {
-        if(e.target !== caption) {
-          modal.style.display = "block";
-          modalImg.src = file.download_url;
-          modalCaption.textContent = file.name;
-        }
-      };
+/* ===== FETCH ===== */
+function loadFolder(folder="") {
+  page = 0;
+  gallery.innerHTML = "";
+  fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
+    .then(r => r.json())
+    .then(files => {
+      const gifs = files.filter(f => /\.gif$/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name));
+      const imgs = files.filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name));
+      allFiles = [...gifs, ...imgs];
+      applyFilter();
     });
-  })
-  .catch(err => console.error("Error loading images:", err));
+}
 
-// Close modal
-closeBtn.onclick = () => { modal.style.display = "none"; };
-modal.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; };
+/* ===== FILTER ===== */
+function applyFilter() {
+  const q = search.value.toLowerCase();
+  filtered = allFiles.filter(f => f.name.toLowerCase().includes(q));
+  gallery.innerHTML = "";
+  page = 0;
+  loadMore();
+}
+
+search.oninput = applyFilter;
+
+/* ===== INFINITE SCROLL ===== */
+function loadMore() {
+  const slice = filtered.slice(page * perPage, (page + 1) * perPage);
+  slice.forEach(file => {
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = file.download_url;
+
+    const name = document.createElement("div");
+    name.className = "filename";
+    name.textContent = file.name;
+    name.onclick = e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(baseURL + file.name);
+      name.textContent = "Copied!";
+      setTimeout(()=>name.textContent=file.name,800);
+    };
+
+    div.onclick = () => {
+      modal.style.display = "flex";
+      modalImg.src = file.download_url;
+    };
+
+    div.append(img, name);
+    gallery.appendChild(div);
+  });
+  page++;
+}
+
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+    loadMore();
+  }
+});
+
+/* ===== MODAL CLOSE ===== */
+document.querySelector(".close").onclick = () => modal.style.display="none";
+modal.onclick = e => { if (e.target === modal) modal.style.display="none"; };
+
+/* ===== NAV BUTTONS ===== */
+document.querySelectorAll("[data-folder]").forEach(btn => {
+  btn.onclick = () => loadFolder(btn.dataset.folder);
+});
+
+/* ===== INIT ===== */
+loadFolder();
 </script>
 </body>
 </html>
