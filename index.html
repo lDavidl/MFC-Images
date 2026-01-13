@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Image Gallery</title>
+<style>
+  body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
+  h1 { text-align: center; }
+  .gallery { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  .item { text-align: center; }
+  img { max-width: 200px; max-height: 200px; display: block; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; }
+  .filename { font-size: 0.9em; color: #333; word-break: break-word; }
+</style>
+</head>
+<body>
+<h1>My Image Gallery</h1>
+<div class="gallery" id="gallery"></div>
+
+<script>
+// List your image filenames here
+const images = [
+  "miku.jpg",
+  "rem.png",
+  "nendoroid1.jpg"
+  // add more filenames as needed
+];
+
+const gallery = document.getElementById("gallery");
+
+images.forEach(filename => {
+  const div = document.createElement("div");
+  div.className = "item";
+  
+  const img = document.createElement("img");
+  img.src = filename;
+  img.alt = filename;
+  
+  const caption = document.createElement("div");
+  caption.className = "filename";
+  caption.textContent = filename;
+  
+  div.appendChild(img);
+  div.appendChild(caption);
+  gallery.appendChild(div);
+});
+</script>
+</body>
+</html>
