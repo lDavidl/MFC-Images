@@ -1,3 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Image Gallery</title>
+<style>
+  body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
+  .gallery { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  .item { text-align: center; }
+  img { max-width: 200px; max-height: 200px; border: 1px solid #ccc; border-radius: 4px; }
+  .filename { font-size: 0.9em; margin-top: 5px; }
+</style>
+</head>
+<body>
+<h1>...</h1>
+
+<!-- THIS IS REQUIRED -->
+<div id="gallery"></div>
+
 <script>
 const owner = "lDavidl";
 const repo = "MFC-Images";
@@ -8,7 +27,6 @@ const gallery = document.getElementById("gallery");
 fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
   .then(res => res.json())
   .then(files => {
-    // Separate GIFs and others
     const gifs = files.filter(f => f.name.match(/\.gif$/i)).sort((a,b) => a.name.localeCompare(b.name));
     const others = files.filter(f => f.name.match(/\.(jpg|jpeg|png|webp)$/i)).sort((a,b) => a.name.localeCompare(b.name));
     
@@ -31,3 +49,6 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
   })
   .catch(err => console.error("Error loading images:", err));
 </script>
+
+</body>
+</html>
