@@ -2,34 +2,47 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Image Gallery</title>
+<title>...</title>
 <style>
-  body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
-  .gallery { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  body { font-family: sans-serif; background: #f9f9f9; padding: 20px; margin: 0; }
+  h1 { text-align: center; margin-bottom: 40px; }
+  .gallery { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+    gap: 20px; 
+    justify-items: center;
+  }
   .item { text-align: center; }
-  img { max-width: 200px; max-height: 200px; border: 1px solid #ccc; border-radius: 4px; }
-  .filename { font-size: 0.9em; margin-top: 5px; }
+  img { 
+    width: 100%; 
+    height: auto; 
+    max-width: 200px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .filename { font-size: 0.9em; color: #333; word-break: break-word; margin-top: 6px; }
+  @media (max-width: 400px) { img { max-width: 140px; } }
 </style>
 </head>
 <body>
-<h1>...</h1>
-
-<!-- THIS IS REQUIRED -->
+<h1>My Image Gallery</h1>
 <div id="gallery"></div>
 
 <script>
 const owner = "lDavidl";
 const repo = "MFC-Images";
-const folder = ""; // root or subfolder
+const folder = ""; // root folder
 
 const gallery = document.getElementById("gallery");
 
 fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
   .then(res => res.json())
   .then(files => {
+    // Separate GIFs first, then other images
     const gifs = files.filter(f => f.name.match(/\.gif$/i)).sort((a,b) => a.name.localeCompare(b.name));
     const others = files.filter(f => f.name.match(/\.(jpg|jpeg|png|webp)$/i)).sort((a,b) => a.name.localeCompare(b.name));
-    
+
     [...gifs, ...others].forEach(file => {
       const div = document.createElement("div");
       div.className = "item";
@@ -49,6 +62,5 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`)
   })
   .catch(err => console.error("Error loading images:", err));
 </script>
-
 </body>
 </html>
